@@ -2,10 +2,8 @@ schema_version: 1
 
 context:
   version: "2.0.3"
-  build_number: 0
+  build_number: 1
   python_min: "3.12"
-  cuda_version: ${{ env.get("CONDA_OVERRIDE_CUDA", default="None") }}
-  cuda: ${{ "ON" if cuda_version != "None" else "OFF" }}
 
 recipe:
   name: libparallelproj-split
@@ -32,7 +30,7 @@ outputs:
               -DPROJECT_VERSION_OVERRIDE=${{ version }} ^
               -DCMAKE_INSTALL_PREFIX="%PREFIX%" ^
               -DCMAKE_INSTALL_LIBDIR=lib ^
-              -DUSE_CUDA=${{ cuda }} ^
+              -DUSE_CUDA=${{ "ON" if cuda_compiler_version != "None" else "OFF" }} ^
               -DBUILD_LIBRARY=ON ^
               -DINSTALL_DEVEL=ON ^
               -DBUILD_PYTHON=OFF ^
@@ -47,7 +45,7 @@ outputs:
               -DPROJECT_VERSION_OVERRIDE=${{ version }} \
               -DCMAKE_INSTALL_PREFIX="$PREFIX" \
               -DCMAKE_INSTALL_LIBDIR=lib \
-              -DUSE_CUDA=${{ cuda }} \
+              -DUSE_CUDA=${{ "ON" if cuda_compiler_version != "None" else "OFF" }} \
               -DBUILD_LIBRARY=ON \
               -DINSTALL_DEVEL=ON \
               -DBUILD_PYTHON=OFF \
@@ -60,8 +58,8 @@ outputs:
 
       variant:
         use_keys:
-          - cuda_version
-        down_prioritize_variant: ${{ 0 if cuda == "ON" else 1 }}
+          - cuda_compiler_version
+        down_prioritize_variant: ${{ 0 if cuda_compiler_version != "None" else 1 }}
 
     requirements:
       build:
@@ -69,19 +67,19 @@ outputs:
         - ${{ stdlib('c') }}
         - cmake
         - ninja
-        - if: cuda == "ON"
+        - if: cuda_compiler_version != "None"
           then:
             - ${{ compiler('cuda') }}
       host:
         - if: osx
           then: llvm-openmp
-        - if: cuda == "ON"
+        - if: cuda_compiler_version != "None"
           then:
-            - cuda-version ==${{ cuda_version }}
+            - cuda-version ==${{ cuda_compiler_version }}
       run:
         - if: osx
           then: llvm-openmp
-        - if: cuda == "ON"
+        - if: cuda_compiler_version != "None"
           then:
             - __cuda
             - cuda-cudart
@@ -116,7 +114,7 @@ outputs:
       name: parallelproj-core
 
     build:
-      skip: ${{ cuda == "ON" }}
+      skip: ${{ cuda_compiler_version != "None" }}
       python:
         version_independent: true
       script:
