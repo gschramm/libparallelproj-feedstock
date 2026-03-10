@@ -186,23 +186,25 @@ outputs:
         - ${{ pin_subpackage("libparallelproj", upper_bound="x.x") }}
 
     tests:
-      - script:
-        - python -c "import parallelproj_core as m; print(m.__file__, ', cuda_enabled =', int(m.cuda_enabled))"
-        - pytest -v ./tests
+      - if: build_platform == host_platform
+        then:
+          script:
+          - python -c "import parallelproj_core as m; print(m.__file__, ', cuda_enabled =', int(m.cuda_enabled))"
+          - pytest -v ./tests
 
-        requirements:
-          run:
-            - pytest
-            - numpy
-            - array-api-compat
-            - array-api-strict
-        files:
-          source:
-            - tests/**/*.py
-            - tests/vstart.txt
-            - tests/vend.txt
-            - tests/img.txt
-            - tests/expected_fwd_vals.txt
+          requirements:
+            run:
+              - pytest
+              - numpy
+              - array-api-compat
+              - array-api-strict
+          files:
+            source:
+              - tests/**/*.py
+              - tests/vstart.txt
+              - tests/vend.txt
+              - tests/img.txt
+              - tests/expected_fwd_vals.txt
 
 about:
   homepage: https://github.com/KUL-recon-lab/libparallelproj
