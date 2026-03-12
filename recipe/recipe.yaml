@@ -2,7 +2,7 @@ schema_version: 1
 
 context:
   version: "2.0.3"
-  build_number: 2
+  build_number: 3
   python_min: "3.12"
 
 recipe:
@@ -21,6 +21,7 @@ outputs:
       name: libparallelproj
 
     build:
+      string: ${{ ("cuda" ~ (cuda_compiler_version | version_to_buildstring)) if cuda_compiler_version != "None" else "cpu" }}_${{ hash }}_${{ build_number }}
       script:
         - if: win
           then: |
@@ -83,6 +84,7 @@ outputs:
           then:
             - __cuda
             - cuda-cudart
+            
       run_exports:
         - ${{ pin_subpackage('libparallelproj', upper_bound='x.x') }}
 
