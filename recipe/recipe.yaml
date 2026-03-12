@@ -83,7 +83,13 @@ outputs:
           then:
             - __cuda
             - cuda-cudart
-            - cuda-version >=${{ env.get("cuda_compiler_version", default="None").split(".")[0] }}.0,<${{ (env.get("cuda_compiler_version", default="None").split(".")[0] | int) + 1 }}
+        - if: match(cuda_compiler_version, "12.*")
+          then:
+            - cuda-version >=12.0,<13
+       - if: match(cuda_compiler_version, "13.*")
+         then:
+           - cuda-version >=13.0,<14
+            
       run_exports:
         - ${{ pin_subpackage('libparallelproj', upper_bound='x.x') }}
 
