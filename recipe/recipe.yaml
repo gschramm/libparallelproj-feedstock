@@ -21,6 +21,7 @@ outputs:
       name: libparallelproj
 
     build:
+      string: ${{ ("cuda" ~ (cuda_compiler_version | version_to_buildstring)) if cuda_compiler_version != "None" else "cpu" }}_${{ hash }}_${{ build_number }}
       script:
         - if: win
           then: |
